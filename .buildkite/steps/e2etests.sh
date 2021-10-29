@@ -2,9 +2,14 @@
 set -eu
 
 for SUITE_NAME in $(authelia-scripts suites list); do
+if [[ "${SUITE_NAME}" = "HighAvailability" ]]; then
+  PARALLEL=" --parallel 20"
+else
+  PARALLEL=""
+fi
 cat << EOF
   - label: ":selenium: ${SUITE_NAME} Suite"
-    command: "authelia-scripts --log-level debug suites test ${SUITE_NAME} --failfast --headless"
+    command: "authelia-scripts --log-level debug suites test ${SUITE_NAME} --failfast --headless${PARALLEL}"
     retry:
       automatic: true
       manual:
@@ -35,9 +40,9 @@ cat << EOF
     agents:
       suite: "all"
 EOF
+fi
 cat << EOF
     env:
       SUITE: "${SUITE_NAME}"
 EOF
-fi
 done
